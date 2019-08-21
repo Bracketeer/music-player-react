@@ -1,33 +1,89 @@
+html > * {
+  box-sizing: border-box;
+}
 .App {
-  text-align: center;
+  display: grid;
+  grid-template-rows: 55.5px 1fr 55px;
+  grid-template-columns: 250px 1fr;
+  height: 100vh
 }
-
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
+.playlist-header {
+  padding: 5px;
+  text-transform: uppercase;
+  top: 0;
+  position: sticky;
+  background: #f7f7f7;
 }
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+ aside {
+  grid-row: 2 / 3;
+  grid-column: 1 / 2;
+  background: #f7f7f7;
+  position: fixed;
+  top: 55.5px;
+  bottom: 55px;
+  left: 0;
+  width: 250px;
+  box-sizing: border-box;
+  overflow: auto;
+  font-size: 12px;
+}
+aside > ul {
+  margin: 0;
+  padding: 0px;
+}
+aside > ul > li {
+  list-style: none;
+  padding: 5px;
+  display: flex;
+}
+aside > ul > li:nth-child(odd) {
+  list-style: none;
+  padding: 5px;
+  background: rgba(0,0,0,.02);
+  display: flex;
+  align-items: center;
+}
+aside > ul > li > img {
+  height: 30px;
+  width: auto;
+  margin-right: 10px;
+}
+.track-info {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+}
+.__artist {
+  font-size: 10px;
+  color: teal;
+}
+.__title {
+  font-size: 10px;
 }
 
-.App-link {
-  color: #61dafb;
+.volume-slider{
+  appearance: none;
+  height: 4px;
+  background: #d9d9d9;
+  margin-top: auto;
+  margin-bottom: auto;
 }
+.volume-slider::-webkit-slider-thumb{
+  appearance: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: teal;
+}
+ main {
+  grid-row: 2 / 3;
+  grid-column: 2 / 3;
+  padding: 20px;
+  box-sizing: border-box;
+ }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.music-controls {
+  grid-row: 3 / 4;
+  grid-column: 2 / 3;
+  padding: 10px;
 }
+ 
