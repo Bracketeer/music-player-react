@@ -96,7 +96,6 @@ export default function Album(props) {
     //     })
     // }
     function showMenu() {
-        console.log(state.menu)
         setState({menu: !state.menu})
     }
     function albumMenu() {

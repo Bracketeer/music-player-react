@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, css } from 'aphrodite';
-
+import { Volume, Shuffle, TrackBar, TrackTime } from './musicControls';
 class MusicControls extends React.Component {
     constructor(props) {
         super(props);
@@ -10,7 +10,21 @@ class MusicControls extends React.Component {
             currentTrack: 0,
             volume: 1,
             muted: false,
+            currentTime: 0,
+            duration: 0,
+            buffered: 0,
+            progress: 0,
+            shuffle: false,
+            repeat: null,
         }
+    }
+    setTrackTimes() {
+        this.setState({
+            currentTime: this.Player.current.currentTime,
+            duration: this.Player.current.duration,
+            buffered: this.Player.current.buffered,
+            progress: ((this.Player.current.currentTime / this.Player.current.duration) * 100)
+        })
     }
     playerPlayPause() {
         if (this.Player.current) {
@@ -19,71 +33,127 @@ class MusicControls extends React.Component {
             return this.Player.current.paused;
         }
     }
-    playPauseButton() {
-        if (this.state.paused) {
-            return (<i className="material-icons">play_arrow</i>)
-        } else {
-            return (<i className="material-icons">pause</i>)
-        }
-    }
     setPreviousTrack() {
         if (this.state.currentTrack > 0) {
             const currentTrack = this.state.currentTrack - 1
             this.setState({ currentTrack: currentTrack })
         }
     }
+    getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
     setNextTrack() {
+        if (this.state.repeat === 'one') {
+            this.Player.current.currentTime = 0;
+            this.Player.current.play();
+        } else
+        if (this.state.shuffle) {
+            this.setState({ currentTrack: this.getRandomInt(this.props.playlist.length - 1)})
+        } else
+        if (this.state.currentTrack === this.props.playlist.length - 1) {
+            this.setState({ currentTrack: 0 })            
+        } else
         if (this.state.currentTrack < this.props.playlist.length - 1) {
             const currentTrack = this.state.currentTrack + 1
             this.setState({ currentTrack: currentTrack })
         }
     }
-    setVolume(value) {
-        console.log(value);
-        this.setState({volume: value})
-        this.Player.current.volume = value;
-    }
-    toggleVolumeMute() {
-        this.Player.current.muted = !this.Player.current.muted;
-        this.setState({ muted: this.Player.current.muted})
+    setRepeatIcon() {
+        return !this.repeat ? this.repeat = 'all' :
+            this.repeat === 'all' ? this.repeat = 'one' :
+                this.repeat === 'one' ? this.repeat = null : null
     }
     render(){
         return (
             <div className={css(this.styles.bar)}>
+                <TrackBar
+                    {...this.state}
+                    {...this.props}
+                    Player={this.Player}>
+                </TrackBar>
+
                 <div className={css(this.styles.trackInfoContainer)}>
-                    <img className={css(this.styles.image)} src={this.props.playlist[this.state.currentTrack].thumbnail} alt={this.props.playlist[this.state.currentTrack].title} />
+
+                    <img
+                        className={css(this.styles.image)}
+                        src={this.props.playlist[this.state.currentTrack].thumbnail}
+                        alt={this.props.playlist[this.state.currentTrack].title} />
+                    
                     <div className={css(this.styles.trackInfo)}>
+                        
                         <div className={css(this.styles.artist)}>
                             {this.props.playlist[this.state.currentTrack].artist}
-                    </div> 
+                        </div> 
+                        
                         <div className={css(this.styles.title)}>
                             {this.props.playlist[this.state.currentTrack].title}
-                    </div>
+                        </div>
+                    
                     </div>
                 </div>
                 <div className={css(this.styles.player)}>
-                    <audio className={css(this.styles.player)} src={this.props.playlist[this.state.currentTrack].url} autoPlay ref={this.Player} />
-                    <div className={css(this.styles.skipArrows)}>
-                        <i className="material-icons">repeat</i>
+
+                    <audio
+                        className={css(this.styles.player)}
+                        src={this.props.playlist[this.state.currentTrack].url}
+                        autoPlay
+                        onTimeUpdate={_ => this.setTrackTimes()}
+                        onEnded={_ => this.setNextTrack()}
+                        ref={this.Player} />
+                    
+                    <div
+                        onClick={ _ => this.setState({ repeat: this.setRepeatIcon() }) }
+                        className={
+                            css(this.styles.skipArrows,
+                                this.styles.playOption,
+                                this.state.repeat ? this.styles.activePlayOption : null
+                            )}>
+                        <i className="material-icons">
+                            {this.repeat === 'all' || !this.repeat ? 'repeat' : 'repeat_one'}
+                        </i>
                     </div>
-                    <div className={css(this.styles.skipArrows)} onClick={() => this.setPreviousTrack()}>
+
+                    <div
+                        onClick={() => this.setPreviousTrack()}
+                        className={css(this.styles.skipArrows)}>
                         <i className="material-icons">skip_previous</i>
                     </div>
-                    <div className={css(this.styles.playerControls)} onClick={() => this.playerPlayPause()}>
+
+                    <div
+                        className={css(this.styles.playerControls)}
+                        onClick={() => this.playerPlayPause()}>
                         <div className={css(this.styles.button)}>
-                            {this.playPauseButton()}
+                            <i className="material-icons">
+                                {this.state.paused ? 'play_arrow' : 'pause'}
+                            </i>
                         </div>
                     </div>
-                    <div className={css(this.styles.skipArrows)} onClick={() => this.setNextTrack()}>
+
+                    <div
+                        className={css(this.styles.skipArrows)}
+                        onClick={() => this.setNextTrack()}>
                         <i className="material-icons">skip_next</i>
                     </div>
-                    <div className={css(this.styles.skipArrows)}>
-                        <i className="material-icons">shuffle</i>
-                    </div>
+
+                    <Shuffle
+                        {...this.props}
+                        {...this.state}
+                        setState={(state) => this.setState(state)}>    
+                    </Shuffle>
+
                 </div>
+                
                 <div className={css(this.styles.playerControlsRight)}>
-                    <i className={css(this.styles.skipArrows) + ' material-icons'} onClick={() => this.toggleVolumeMute()}>{this.state.muted ? 'volume_off' : this.state.volume > .5 ? 'volume_up' : Number(this.state.volume) === 0 ? 'volume_mute' : 'volume_down'}</i>
-                    <input className="volume-slider" type="range" min="0" max="1" step=".01" onChange={(event) => this.setVolume(event.target.value)}/>
+                    <TrackTime {...this.state} Player={this.Player} ></TrackTime>
+
+                    <Volume
+                        {...this.props}
+                        {...this.state}
+                        setState={(state) => this.setState(state)}
+                        Player={this.Player}
+                        onChange={(event, state) => this.setState(state)}
+                        onClick={(event, state) => this.setState(state)}>    
+                    </Volume>
                 </div>
         </div>
         )
@@ -153,6 +223,12 @@ class MusicControls extends React.Component {
             alignItems: 'center',
             color: 'teal',
             boxSizing: 'border-box'
+        },
+        playOption: {
+            color: 'lightgray'
+        },
+        activePlayOption: {
+            color: 'teal'
         },
         skipArrows: {
             fontSize: '25px',

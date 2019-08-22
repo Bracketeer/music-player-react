@@ -6,6 +6,64 @@ export default class SongOverview extends React.Component {
         super(props);
         this.albums = props.albums;
     }
+    
+    TrackList(album, tracks) {
+        return tracks.map((track, i)=> {
+            return (
+                <div key={track.title + i} className={css(this.styles.trackName)}>
+                    <span>{track.track_number}. {track.title}</span>
+                    <div>
+                    <i className={css(this.styles.moreButton) + ' material-icons'} onClick={event => this.props.playNext(event, [MapTrack(album, track)])}>add</i>
+                    <i className={css(this.styles.moreButton) + ' material-icons'}>more_vert</i>
+                    </div>
+                </div>
+            )
+        })
+    }
+    AlbumList(albums) {
+        return albums.map(album => {
+            return (
+                <div key={album.artist} className={css(this.styles.albumContainer)}>
+                    <div className={css(this.styles.albumImageContainer)}>
+                        <img
+                            className={css(this.styles.albumImage)}
+                            src={album.thumbnail}
+                            alt={album.album} />
+                    </div>
+                    <div className={css(this.styles.trackContainer)}>
+                        <div className={css(this.styles.albumHeader)}>
+
+                            <div className={css(this.styles.albumHeaderInfo)}>
+                                <h1 className={css(this.styles.artist)}>{album.artist} </h1>
+                                <h2 className={css(this.styles.albumName)}>{album.album}</h2>
+                            </div>
+                            
+                            <div className={css(this.styles.albumOptions)}>
+                                <button
+                                    className={css(this.styles.icon)}
+                                    onClick={event => this.props.selectAlbum(event, MapAlbum(album))}>
+                                    <i className="material-icons">play_arrow</i>
+                                </button>
+
+                                <button
+                                    className={css(this.styles.icon)}
+                                    onClick={event => this.props.addToQueue(event, MapAlbum(album))}>
+                                    <i className="material-icons">queue</i>
+                                </button>
+                            </div>
+                        </div>
+                        {this.TrackList(album, album.tracks)}
+                    </div>
+                    <div style={{backgroundImage: `url(${album.thumbnail})`}} className={css(this.styles.containerBackground)}></div>
+                </div>
+            )
+        })
+    }
+    render() {
+        return (
+            this.AlbumList(this.albums)
+        )
+    }
     styles = StyleSheet.create({
         albumContainer: {
             width: '100%',
@@ -67,42 +125,20 @@ export default class SongOverview extends React.Component {
             fontWeight: 300,
             fontSize: '16px',
             paddingBottom: '10px',
+        },
+        albumHeader: {
+            display: 'flex',
+            justifyContent: 'space-between'
+        },
+        albumOptions: {
+            display: 'flex',
+            justifyContent: 'flex-end'
+        },
+        icon: {
+            background: 'transparent',
+            color: 'teal',
+            border: 'none',
+            cursor: 'pointer'
         }
     });
-    TrackList(album, tracks) {
-        return tracks.map((track, i)=> {
-            return (
-                <div key={track.title + i} className={css(this.styles.trackName)}>
-                    <span>{track.track_number}. {track.title}</span>
-                    <div>
-                    
-                    <i className={css(this.styles.moreButton) + ' material-icons'} onClick={event => this.props.playNext(event, [MapTrack(album, track)])}>add</i>
-                    <i className={css(this.styles.moreButton) + ' material-icons'}>more_vert</i>
-                    </div>
-                </div>
-            )
-        })
-    }
-    AlbumList(albums) {
-        return albums.map(album => {
-            return (
-                <div key={album.artist} className={css(this.styles.albumContainer)}>
-                    <div className={css(this.styles.albumImageContainer)}>
-                        <img className={css(this.styles.albumImage)} src={album.thumbnail} alt={album.album} />
-                    </div>
-                    <div className={css(this.styles.trackContainer)}>
-                        <h1 className={css(this.styles.artist)}>{album.artist} </h1>
-                        <h2 className={css(this.styles.albumName)}>{album.album}</h2>
-                        {this.TrackList(album, album.tracks)}
-                    </div>
-                    <div style={{backgroundImage: `url(${album.thumbnail})`}} className={css(this.styles.containerBackground)}></div>
-                </div>
-            )
-        })
-    }
-    render() {
-        return (
-            this.AlbumList(this.albums)
-        )
-    }
 }

@@ -10,7 +10,13 @@ function AlbumOverview(props) {
     }
     const albums = props.albums.map(album => {
         return (
-            <Album key={album.album} playNext={props.playNext} addToQueue={props.addToQueue} selectAlbum={props.selectAlbum} album={album}></Album>
+            <Album
+                key={album.album}
+                playNext={props.playNext}
+                addToQueue={props.addToQueue}
+                selectAlbum={props.selectAlbum}
+                album={album}>
+            </Album>
         )
     });
     return (
